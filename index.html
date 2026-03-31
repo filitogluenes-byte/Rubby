@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RUBBY CAFE | QR Menü</title>
+    <style>
+        :root { --p-green: #2e7d32; --bg: #f4fbf4; }
+        body { font-family: sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; }
+        header { background: var(--p-green); color: white; text-align: center; padding: 20px; border-radius: 0 0 20px 20px; }
+        .nav { display: flex; overflow-x: auto; padding: 10px; background: white; sticky; top: 0; gap: 10px; border-bottom: 1px solid #ddd; }
+        .nav button { background: white; border: 1px solid var(--p-green); padding: 8px 15px; border-radius: 15px; white-space: nowrap; color: var(--p-green); font-weight: bold; }
+        .menu-container { padding: 15px; }
+        .item { background: white; margin-bottom: 10px; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .add-btn { background: var(--p-green); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+        
+        /* Sepet Çubuğu */
+        .cart-bar { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 2px solid var(--p-green); display: flex; justify-content: space-between; align-items: center; }
+        .order-now { background: #c62828; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>RUBBY CAFE</h1>
+    <p>Masa No: <input type="number" id="masaNo" value="1" style="width: 40px; border: none; border-radius: 3px; text-align: center;"></p>
+</header>
+
+<div class="nav">
+    <button onclick="show('kahvalti')">KAHVALTI</button>
+    <button onclick="show('makarna')">MAKARNA</button>
+    <button onclick="show('burger')">BURGER</button>
+    <button onclick="show('tatli')">TATLILAR</button>
+    <button onclick="show('icecek')">İÇECEKLER</button>
+</div>
+
+<div class="menu-container" id="menu-area">
+    </div>
+
+<div class="cart-bar">
+    <div>Toplam Seçilen: <span id="cart-count">0</span></div>
+    <button class="order-now" onclick="sendOrder()">SİPARİŞİ GÖNDER</button>
+</div>
+
+<script>
+    const items = [
+        {cat:'kahvalti', name:'SERPME KAHVALTI'}, {cat:'kahvalti', name:'KARIŞIK TOST'},
+        {cat:'makarna', name:'KÖRİ SOSLU PENNE'}, {cat:'makarna', name:'MANTI'},
+        {cat:'burger', name:'ALFA ÇİZBURGER'}, {cat:'tatli', name:'WAFFLE'},
+        {cat:'icecek', name:'TÜRK KAHVESİ'}, {cat:'icecek', name:'LİMONATA'}
+    ];
+
+    let cart = [];
+
+    function show(cat) {
+        const area = document.getElementById('menu-area');
+        area.innerHTML = `<h2>${cat.toUpperCase()}</h2>`;
+        items.filter(i => i.cat === cat).forEach(i => {
+            area.innerHTML += `<div class="item"><span>${i.name}</span><button class="add-btn" onclick="addToCart('${i.name}')">Ekle</button></div>`;
+        });
+    }
+
+    function addToCart(name) {
+        cart.push(name);
+        document.getElementById('cart-count').innerText = cart.length;
+    }
+
+    function sendOrder() {
+        if(cart.length === 0) return alert("Önce ürün seçmelisiniz!");
+        const masa = document.getElementById('masaNo').value;
+        const orderData = { masa: masa, urunler: cart, time: new Date().toLocaleTimeString() };
+        
+        // Bu kısım normalde sunucuya gider, şimdilik LocalStorage kullanıyoruz (Aynı tarayıcıda test için)
+        let orders = JSON.parse(localStorage.getItem('rubby_orders') || '[]');
+        orders.push(orderData);
+        localStorage.setItem('rubby_orders', JSON.stringify(orders));
+        
+        alert("Siparişiniz mutfağa iletildi!");
+        cart = [];
+        document.getElementById('cart-count').innerText = "0";
+    }
+
+    show('kahvalti');
+</script>
+</body>
+</html>
